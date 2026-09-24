@@ -1,6 +1,6 @@
 [package]
 name = "ic-agent"
-version = "0.1.0-alpha.7"
+version = "0.1.0"
 description = "An Internet Computer agent in Motoko: sign, submit, poll and read canister calls from off-chain Motoko (moxzi, moxzid, the game player, the browser) or from anywhere HTTPS outcalls exist."
 repository = "https://github.com/icdevsorg/ic-agent-mo"
 license = "Apache-2.0"
@@ -13,3 +13,6 @@ sha2 = "0.2.5"
 ed25519 = "0.1.0"
 libsecp256k1 = "0.1.0"
 bls12-381 = "0.1.0"
+
+[toolchain]
+moc = "1.16.1"
