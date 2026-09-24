@@ -1,0 +1,31 @@
+// Every Candid type docs/candid-json.md maps, so the generated façade must round-trip
+// each one through to_candid / from_candid (scripts/ic_agent_gate.sh, Roundtrip.mo).
+type Tree = variant { leaf : nat; node : record { Tree; Tree } };
+type Pair = record { 0 : nat; 1 : text };
+type Sub = record { x : int8; y : nat16; z : int64; w : nat32; v : int16 };
+type Status = variant { active; suspended : text; retired : record { at : nat64 } };
+type Rec = record {
+  id : nat64;
+  name : text;
+  tags : vec text;
+  bytes : vec nat8;
+  owner : principal;
+  maybe : opt int32;
+  nested : opt opt bool;
+  tuple : Pair;
+  tree : Tree;
+  flt : float64;
+  when : int;
+  big : nat;
+  sub : Sub;
+  status : Status;
+  flag : bool;
+  nothing : null;
+  matrix : vec vec nat8;
+};
+service : {
+  echo : (Rec, Status) -> (Rec, Status) query;
+  tree : (Tree) -> (Tree) query;
+  ping : () -> ();
+  count : (nat) -> (nat);
+}
