@@ -1,7 +1,7 @@
 [package]
 name = "ic-agent"
 version = "0.2.0"
-description = "An Internet Computer agent in Motoko that verifies everything it receives (certificates and query signatures): sign, submit, poll and read canister calls from off-chain Motoko (moxzi, moxzid, the game player, the browser) or from anywhere HTTPS outcalls exist."
+description = "An Internet Computer agent in Motoko: sign, submit, poll and read canister calls, verifying every certificate and query signature. Runs off-chain (moxzi) or anywhere HTTPS outcalls exist."
 repository = "https://github.com/icdevsorg/ic-agent-mo"
 license = "Apache-2.0"
 keywords = ["motoko", "moxzi", "agent", "internet-computer", "http"]
