@@ -10,7 +10,11 @@ import Text "mo:base/Text";
 import Nat64 "mo:base/Nat64";
 
 module {
-  public type Call = { sender : Principal; canister : Principal; method : Text; arg : Blob; expiry : Nat64; nonce : ?Blob };
+  /// `sender_info` (spec, "Request: Call"/"Query call"): data a signing CANISTER attaches to
+  /// the request, authenticated by a canister signature under `"\x0Eic-sender-info"`. `signer`
+  /// must be the canister named in the sender's canister-signature public key.
+  public type SenderInfo = { info : Blob; signer : Principal; sig : Blob };
+  public type Call = { sender : Principal; canister : Principal; method : Text; arg : Blob; expiry : Nat64; nonce : ?Blob; senderInfo : ?SenderInfo };
   public type ReadState = { sender : Principal; paths : [[Blob]]; expiry : Nat64 };
   public type Content = {
     #call : Call;
@@ -21,9 +25,10 @@ module {
   /// Domain separators: a length byte, then the tag.
   public let DOMAIN_REQUEST : Blob = "\0aic-request";
   public let DOMAIN_DELEGATION : Blob = "\1aic-request-auth-delegation";
+  public let DOMAIN_SENDER_INFO : Blob = "\0eic-sender-info";
 
   func callFields(requestType : Text, c : Call) : [(Text, Hash.Value)] {
-    let buf = Buffer.Buffer<(Text, Hash.Value)>(7);
+    let buf = Buffer.Buffer<(Text, Hash.Value)>(8);
     buf.add(("request_type", #text requestType));
     buf.add(("sender", #blob(Principal.toBlob(c.sender))));
     switch (c.nonce) { case (?n) buf.add(("nonce", #blob n)); case null {} };
@@ -31,6 +36,10 @@ module {
     buf.add(("canister_id", #blob(Principal.toBlob(c.canister))));
     buf.add(("method_name", #text(c.method)));
     buf.add(("arg", #blob(c.arg)));
+    switch (c.senderInfo) {
+      case (?si) buf.add(("sender_info", #map([("info", #blob(si.info)), ("signer", #blob(Principal.toBlob(si.signer))), ("sig", #blob(si.sig))])));
+      case null {};
+    };
     Buffer.toArray(buf)
   };
 

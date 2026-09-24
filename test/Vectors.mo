@@ -39,17 +39,17 @@ persistent actor {
     let anon = Identity.anonymous();
     let can = Principal.fromBlob(hex("00000000000004d2"));
     let arg = hex("4449444c00fd2a");
-    let call : Envelope.Content = #call { sender = anon; canister = can; method = "hello"; arg; expiry = 1685570400000000000; nonce = null };
+    let call : Envelope.Content = #call { sender = anon; canister = can; method = "hello"; arg; expiry = 1685570400000000000; nonce = null; senderInfo = null };
     expect("request id: spec call", Envelope.requestId(call) == hex(SPEC_CALL_ID));
-    let q : Envelope.Content = #queryCall { sender = anon; canister = can; method = "hello"; arg; expiry = 1685570400000000000; nonce = null };
+    let q : Envelope.Content = #queryCall { sender = anon; canister = can; method = "hello"; arg; expiry = 1685570400000000000; nonce = null; senderInfo = null };
     expect("request id: query", Envelope.requestId(q) == hex("74aff80b32e98aafb7f1b6cbedc29d2f7de9227d60a55169342600099f0e4147"));
     let rs : Envelope.Content = #readState { sender = anon; expiry = 1685570400000000000; paths = [["request_status", hex("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff")]] };
     expect("request id: read_state", Envelope.requestId(rs) == hex("1786cf115454c5880804cb00867211ba06ca8f8bb96778677c24a8cb8bc72759"));
-    let withNonce : Envelope.Content = #call { sender = anon; canister = can; method = "hello"; arg; expiry = 1685570400000000000; nonce = ?hex("0102030405060708") };
+    let withNonce : Envelope.Content = #call { sender = anon; canister = can; method = "hello"; arg; expiry = 1685570400000000000; nonce = ?hex("0102030405060708"); senderInfo = null };
     expect("request id: call with nonce", Envelope.requestId(withNonce) == hex("746566dba1acd0cefb00e8c123c5b54bc55f621270284b533e9d007665dbf5d2"));
 
     // ---- the envelope, byte for byte (anonymous query, an expiry agent-js encodes as a uint)
-    let small : Envelope.Content = #queryCall { sender = anon; canister = can; method = "hello"; arg; expiry = 1000000; nonce = null };
+    let small : Envelope.Content = #queryCall { sender = anon; canister = can; method = "hello"; arg; expiry = 1000000; nonce = null; senderInfo = null };
     expectBlob("envelope: anonymous query bytes", Envelope.encode(small, #anonymous), hex("d9d9f7a167636f6e74656e74a663617267474449444c00fd2a6b63616e69737465725f69644800000000000004d26e696e67726573735f6578706972791a000f42406b6d6574686f645f6e616d656568656c6c6f6c726571756573745f747970656571756572796673656e6465724104"));
     expect("request id: small expiry", Envelope.requestId(small) == hex("190e9719eebd7c31dae641e7ff7423c96c09b85c3c59528d1ab4e8c6aabb6775"));
 

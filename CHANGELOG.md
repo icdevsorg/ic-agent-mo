@@ -1,5 +1,57 @@
 # Changelog
 
+## 0.2.0 — 2026-09-24
+
+The agent now covers the IC interface specification's HTTPS interface, and **verifies
+everything it receives**. 0.1.0 verified certificates but trusted query responses; that was a
+gap, and it is closed.
+
+- **Query responses are verified.** Every reply and every rejection is checked against its
+  node signatures (Ed25519 over `"\x0Bic-response" · hash_of_map(response)`), using node keys
+  from a verified `/subnet` certificate of the subnet that hosts the canister, with fresh
+  timestamps. Keys are cached per subnet while their certificate is fresh. Node signatures
+  are checked by a new `Ed25519` module (RFC 8032 over `Nat` arithmetic, 155 million
+  instructions per query, never traps, small-order keys refused): `mo:ed25519`'s `verify`
+  traps on malformed input, took over 2 seconds per call, and rejected a genuine PocketIC node
+  signature in one gate run. New error
+  `#querySignature`. Pure halves for callers with their own transport:
+  `subnetKeysFromCertificate`, `checkNodeSignatures`.
+- **Ed25519 signing fixed.** `Identity.ed25519` signed with `mo:ed25519`, which produces an
+  INVALID signature whenever the nonce has a zero top byte, about 1 message in 24; the replica
+  rejects those requests ("Invalid signature"). A 100-message differential against OpenSSL
+  found 3, identically under moc and moxzi. Signing now uses the new `Ed25519` module, checked
+  byte for byte against OpenSSL on 64 keys and on the 3 failing messages; the `ed25519`
+  dependency is gone.
+- **Current endpoints.** v3 query, v3 read_state and v4 synchronous call, each downgrading once
+  per agent (to v2, v2, and v3 then v2 + polling) when a gateway answers 404/405;
+  `apiVersions()` reports what is in use.
+- **Delegations are scoped as the spec requires.** v3/v4 delegations carry only the sharded
+  `/canister_ranges/<subnet>/…`; 0.1.0 read only `/subnet/<subnet>/canister_ranges` and would
+  have refused them. Both encodings are read now. Subnet-scoped requests check the delegation's
+  subnet.
+- **Certificate freshness and well-formedness.** `/time` must be within
+  `Config.maxCertificateAgeNs` (5 minutes); a delegation's within `maxDelegationAgeNs`
+  (30 days). Trees must be well formed before any lookup. `Certificate.verifyScoped` with a
+  `Policy`; the 0.1.0 `Certificate.verify` is kept.
+- **Effective canister ids.** Calls to `aaaaa-aa` are routed to the canister in their Candid
+  argument (`canister_id`, or `target_canister` for `install_chunked_code`);
+  `Options.effectiveCanisterId` for canister creation and `list_canisters`. New `Candid` module.
+- **More of the spec:** `readSubnetState`, `subnetQuery`, `subnetCall`, `pollSubnet`;
+  `moduleHash`, `controllers`, `metadata`; `Options.senderInfo` (`sender_info`); `queryWith`,
+  `submitWith`, `callWith`; `Certificate.certifiedData`, `Certificate.verifyCanisterSignature`,
+  `lookupAll`, `wellFormed`, `rootSubnetId`, `nodeKeys`; `RejectCode.#sysUnknown` (6).
+- **Breaking:** `Config` has two new fields (`maxCertificateAgeNs`, `maxDelegationAgeNs`) —
+  build configs with `{ Agent.defaults(host, id) with … }`; `Envelope.Call` has `senderInfo`;
+  `poll`'s first argument is the request's effective canister id (the same as before for any
+  target but `aaaaa-aa`).
+- **Tests:** `test/SpecVectors.mo`, 121 checks against real mainnet query responses and
+  certificates (root and delegated subnets, a signed rejection) and 64 OpenSSL Ed25519
+  keys and signatures (signing byte for byte, verification, alteration), both compilers; the live
+  PocketIC gate now runs an NNS + application topology so answers come under a real
+  delegation, and adds rejections, canister info, subnet endpoints, management routing,
+  canister signatures and certified data; mainnet steps fail instead of skipping when
+  mainnet is reachable.
+
 ## 0.1.0 — 2026-09-24
 
 First registry release.

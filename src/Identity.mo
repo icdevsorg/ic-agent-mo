@@ -6,7 +6,7 @@ import Blob "mo:base/Blob";
 import Array "mo:base/Array";
 import Principal "mo:base/Principal";
 import Debug "mo:base/Debug";
-import Ed "mo:ed25519";
+import Ed25519 "Ed25519";
 import Ecdsa "mo:libsecp256k1/Ecdsa";
 import SecretKey "mo:libsecp256k1/SecretKey";
 import PublicKey "mo:libsecp256k1/PublicKey";
@@ -60,11 +60,11 @@ module {
   /// An ed25519 identity from its 32-byte seed. Signs the message directly.
   public func ed25519(seed : Blob) : Identity {
     if (seed.size() != 32) Debug.trap("ed25519: a seed is 32 bytes");
-    let sk = Blob.toArray(seed);
-    let pub = Ed.ED25519.getPublicKey(sk);
+    // Ed25519.mo, not `mo:ed25519`: that package signs WRONG about once in 24 messages (see
+    // Ed25519.sign), which the replica rejects as "Invalid signature".
     #signer {
-      publicKey = Hash.concat([ED25519_DER_PREFIX, Blob.fromArray(pub)]);
-      sign = func(m : Blob) : Blob = Blob.fromArray(Ed.ED25519.sign(Blob.toArray(m), sk));
+      publicKey = Hash.concat([ED25519_DER_PREFIX, Ed25519.publicKey(seed)]);
+      sign = func(m : Blob) : Blob = Ed25519.sign(seed, m);
     }
   };
 
