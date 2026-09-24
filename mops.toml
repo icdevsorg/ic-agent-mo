@@ -2,7 +2,7 @@
 name = "ic-agent"
 version = "0.1.0-alpha.7"
 description = "An Internet Computer agent in Motoko: sign, submit, poll and read canister calls from off-chain Motoko (moxzi, moxzid, the game player, the browser) or from anywhere HTTPS outcalls exist."
-repository = "https://github.com/rivvirtech/moxzi"
+repository = "https://github.com/icdevsorg/ic-agent-mo"
 license = "Apache-2.0"
 keywords = ["motoko", "moxzi", "agent", "internet-computer", "http"]
 
