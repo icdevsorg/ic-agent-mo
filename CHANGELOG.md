@@ -1,6 +1,8 @@
 # Changelog
 
-## Next
+## 0.1.0-alpha.7 — 2026-09-24
+
+First registry release.
 
 - **`Bls12381.mo` now delegates to `mo:bls12-381`** (`icdevsorg/bls12-381.mo`, the
   EIP-2537-grade implementation `evm.mo` already uses) instead of the from-scratch,
@@ -16,8 +18,7 @@
   (`~93%` of the old pairing's cost) from ~25-27 billion to 412 million, ~61-66x — see
   `README.md`, "Certificate verification cost", for the full before/after table and
   `Bls12381.mo`'s module comment for exactly what moved. New dependency `bls12-381`
-  (Apache-2.0); it is not yet on the mops registry, so `mops.toml` pulls it by GitHub ref —
-  **publishing `ic-agent` to mops requires `bls12-381` to be published there first.**
+  (Apache-2.0), `bls12-381 = "0.1.0"` from the mops registry.
   `test/BlsVectors.mo`'s KATs were rewritten for the new split (hash-to-curve and G2
   decompression/subgroup-rejection are still this package's to prove; the library's own
   pairing correctness is its own test/bench suite's concern).
@@ -34,7 +35,7 @@
   honest cost, not hidden, is G3's input on whether this is viable in a hot path or
   on-chain at all). `test/BlsVectors.mo` carries the KATs.
 
-## 0.1.0-alpha.7
+### Earlier in this release (before the BLS switch)
 
 First release. Query, submit, poll, call, read_state and status against the IC's HTTP
 interface from Motoko; identities: anonymous, ed25519, secp256k1, a host-supplied signer,

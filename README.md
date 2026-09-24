@@ -164,6 +164,4 @@ same counter — the BLS12-381 cost table (wasm instructions, `MOXZI_FUEL=1`) �
 anonymous query on mainnet.
 
 Dependencies: `cbor` (MIT), `sha2` (Apache-2.0), `ed25519` (MIT), `libsecp256k1` (Apache-2.0),
-`bls12-381` (Apache-2.0, `icdevsorg/bls12-381.mo` — **not yet on the mops registry**; this
-package currently pulls it by GitHub ref (`mops.toml`), so publishing `ic-agent` to mops
-requires `bls12-381` to be published there first).
+`bls12-381` (Apache-2.0, `icdevsorg/bls12-381.mo`, 0.1.0 from the mops registry).
